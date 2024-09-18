@@ -1,8 +1,9 @@
 // listing element
-document.getElementById('resumeForm')?.addEventListener("submit", function(event){
+document.getElementById("resumeForm")?.addEventListener("submit", function(event){
     event.preventDefault();
 
-// Get references to form elements using their IDs
+// Get form elements
+
 const profilePictureInput = document.getElementById("profilePicture") as HTMLInputElement;
 
 const nameElement = document.getElementById("name") as HTMLInputElement;
@@ -12,11 +13,10 @@ const educationElement = document.getElementById("education") as HTMLTextAreaEle
 const experienceElement = document.getElementById("experience") as HTMLTextAreaElement;
 const skillsElement = document.getElementById("skills") as HTMLTextAreaElement;
 
-const usernameElement = document.getElementById("username") as HTMLInputElement;
-
-//Check if all form elements are present
-if (profilePictureInput && nameElement && emailElement && phoneElement && educationElement && experienceElement && skillsElement && usernameElement){
-
+//Check if all elements are present
+if (profilePictureInput && nameElement && emailElement && phoneElement && educationElement && experienceElement && skillsElement)
+{
+// Get values from Form   
     const name = nameElement.value;
     const email = emailElement.value;
     const phone = phoneElement.value;
@@ -24,15 +24,13 @@ if (profilePictureInput && nameElement && emailElement && phoneElement && educat
     const experience = experienceElement.value;
     const skills = skillsElement.value;
 
-    const username = usernameElement.value;
-    const uniquePath = `resumes/${username.replace(/\s+/g, '_')}_cv.html`
 
-// Picture elements
-const profilePictureFile = profilePictureInput.files?.[0];
+//Handle profile picture elements
+const profilePictureFile = profilePictureInput.files?.[0]
 const profilePictureURL = profilePictureFile ? URL.createObjectURL(profilePictureFile) : ""; 
     
-    
-const resumeOutput = `
+//Generate the resume html content    
+const resumeHTML = `
 <h2> Resume </h2>
 ${profilePictureURL ? `<img src="${profilePictureURL}" alt="Profile Picture" class="profilePicture">` : ""}
 <p><strong> Name: </strong> ${name} </p>
@@ -50,22 +48,52 @@ ${profilePictureURL ? `<img src="${profilePictureURL}" alt="Profile Picture" cla
 
 `;
 
-const downloadLink = document.createElement('a')
-downloadLink.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(resumeOutput)
-downloadLink.download = uniquePath;
-downloadLink.textContent = 'Download Resume';
-
-//Resume output
+//Display the resume in thr output container
 const resumeOutputElement = document.getElementById("resumeOutput");
 if(resumeOutputElement){
-    resumeOutputElement.innerHTML = resumeOutput;
+    resumeOutputElement.innerHTML = resumeHTML;
+    resumeOutputElement.classList.remove("hidden");
 
-resumeOutputElement.appendChild(downloadLink)
+// Create container for button
+const buttonContainer = document.createElement("div");
+buttonContainer.id = "buttonContainer";
+resumeOutputElement.appendChild(buttonContainer);
 
-    resumeOutputElement.style.display = "block";
-  }
+//Add download PDF button
+const downloadButton = document.createElement("button");
+downloadButton.textContent = "Download As PDF";
+downloadButton.addEventListener("click", () => {
+    window.print();
+});
+buttonContainer.appendChild(downloadButton);
+
+//Add shareable link button
+const shareableLinkButton =document.createElement("button");
+shareableLinkButton.textContent = "Copy Shareable Link";
+shareableLinkButton.addEventListener("click", async () => {
+    try {
+        //Create a unique shareable link (stimulate in thid case)
+        const shareableLink = `https://yourdomain.com/resumes/${name.replace(/\s+/g, "_")}_cv.html`;
+
+        //Use clipboard API to copy the shareable link
+        await navigator.clipboard.writeText(shareableLink);
+        alert("shareable link copied to clipboard!");
+    } catch (err) {
+        console.error("Failed to copy link: ", err);
+        alert("Failed to copy link to clipbord.Please try again.");
+    }
+});
+buttonContainer.append(shareableLinkButton);
 } else {
-    console.error('One or more form elements are missing');
+    console.error("Resume output container not found");
+}
+} else {
+    console.error("Form elements are missing");
 }
 });
+
+
+
+
+
 
